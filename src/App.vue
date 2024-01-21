@@ -2,7 +2,7 @@
   <Header />
   <div class="container">
     <Balance :total="total" />
-    <IncomeExpense :income="+income" :expenses="+expenses" />
+    <IncomeExpense :income="+account.income" :expenses="+account.expenses" />
     <TransactionsList :transactions="transactions" @transactionDeleted="handleTransactionDeleted" />
     <AddTransaction @transactionSubmitted="handleTransactionSubmitted" />
   </div>
@@ -42,23 +42,18 @@ const total = computed(() =>
   }, 0);
 });
 
-// Get income
-const income = computed(() =>
+// Get income/expense info
+const account = computed(() =>
 {
-  return transactions.value
-    .filter((transaction) => transaction.amount > 0)
-    .reduce((acc, transaction) => acc + transaction.amount, 0)
-    .toFixed(2);
-});
-
-// Get expenses
-const expenses = computed(() =>
-{
-  return transactions.value
-    .filter((transaction) => transaction.amount < 0)
-    .reduce((acc, transaction) => acc + transaction.amount, 0)
-    .toFixed(2);
-});
+  const data = { income: 0, expenses: 0 };
+  transactions.value.forEach(tr =>
+  {
+    if (tr.amount < 0) data.expenses += tr.amount
+    else data.income += tr.amount
+  });
+  console.log(data);
+  return data;
+})
 
 // Submit transaction
 const handleTransactionSubmitted = (transactionData) =>
